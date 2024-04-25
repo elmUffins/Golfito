@@ -7,6 +7,7 @@ screen_h = 500
 
 screen = pygame.display.set_mode((screen_w, screen_h))
 pygame.display.set_caption("Golfito")
+pygame.display.set_icon(pygame.image.load("images/golfball.png"))
 
 tile_size = 50
 
