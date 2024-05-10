@@ -1,6 +1,7 @@
 import pygame
 
 pygame.init()
+pygame.font.init()
 
 screen_w = 1000
 screen_h = 500
@@ -8,12 +9,15 @@ screen_h = 500
 screen = pygame.display.set_mode((screen_w, screen_h))
 pygame.display.set_caption("Golfito")
 pygame.display.set_icon(pygame.image.load("images/golfball.png"))
+font = pygame.font.Font(None, 36)
+clock = pygame.time.Clock()
 
 tile_size = 50
 
 bg_img = pygame.image.load("images/back.png")
 grass_img = pygame.image.load("images/grass.png")
 dirt_img = pygame.image.load("images/dirt.png")
+
 
 # Draw Grid Function
 def draw_grid():
@@ -23,17 +27,23 @@ def draw_grid():
 
 
 # World data and class
-world_data = \
-    [
+world_data = [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+]
 
-    ]
-
+# World class
 class World():
     def __init__(self, data):
         self.tile_list = []
-
-        dirt_img = pygame.image.load("images/dirt.png")
-        grass_img = pygame.image.load("images/grass.png")
 
         for row in range(len(data)):
             for col in range(len(data[row])):
@@ -56,6 +66,36 @@ class World():
         for tile in self.tile_list:
             screen.blit(tile[0], tile[1])
 
+
+# Ball class
+class Ball():
+    def __init__(self, x, y):
+        img = pygame.image.load("images/golfball.png")
+        self.image = pygame.transform.scale(img, (20, 20))
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.position = pygame.math.Vector2(self.rect.x, self.rect.y)
+        self.vel_y = 0
+
+    def update(self):
+        self.rect.topleft = self.position
+        screen.blit(self.image, self.rect)
+
+        # Gravity
+        self.vel_y += 1
+        if self.vel_y > 10:
+            self.vel_y = 10
+        self.position += pygame.Vector2(0, self.vel_y)
+
+        # Collision detection
+        for tile in world.tile_list:
+            if self.rect.colliderect(tile[1]):
+                self.vel_y = 0
+                self.position.y = tile[1].top - self.rect.height
+
+
+ball = Ball(100, 250)
 world = World(world_data)
 
 # Game loop
@@ -65,10 +105,15 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
+    clock.tick(60)
     screen.blit(bg_img, (0, 0))
     world.draw()
-
+    ball.update()
     draw_grid()
+
+    pSurface = font.render(f"Position: {ball.position}", True, (255, 255, 255))
+    screen.blit(pSurface, (10, 10))
+
     pygame.display.flip()
 
 pygame.quit()
