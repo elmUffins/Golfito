@@ -76,23 +76,30 @@ class Ball():
         self.rect.x = x
         self.rect.y = y
         self.position = pygame.math.Vector2(self.rect.x, self.rect.y)
+        self.vel_x = 0
         self.vel_y = 0
+        self.acc_y = 1
+        self.bounce_factor = 0.7
+
 
     def update(self):
+
         self.rect.topleft = self.position
         screen.blit(self.image, self.rect)
-
-        # Gravity
-        self.vel_y += 1
-        if self.vel_y > 10:
-            self.vel_y = 10
-        self.position += pygame.Vector2(0, self.vel_y)
 
         # Collision detection
         for tile in world.tile_list:
             if self.rect.colliderect(tile[1]):
-                self.vel_y = 0
+                self.vel_y *= -self.bounce_factor
                 self.position.y = tile[1].top - self.rect.height
+
+        # Gravity
+        self.vel_y += self.acc_y
+        if self.vel_y > 10:
+            self.vel_y = 10
+        self.position.y += self.vel_y
+
+
 
 
 ball = Ball(100, 250)
@@ -112,7 +119,9 @@ while running:
     draw_grid()
 
     pSurface = font.render(f"Position: {ball.position}", True, (255, 255, 255))
+    vSurface = font.render(f"Velocity: {ball.vel_x, ball.vel_y}", True, (255, 255, 255))
     screen.blit(pSurface, (10, 10))
+    screen.blit(vSurface, (10, 40))
 
     pygame.display.flip()
 
