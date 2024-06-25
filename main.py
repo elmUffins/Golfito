@@ -93,12 +93,12 @@ class Ball():
                 self.vel_y *= -self.bounce_factor
                 self.position.y = tile[1].top - self.rect.height
 
+
         # Gravity
         self.vel_y += self.acc_y
         if self.vel_y > 10:
             self.vel_y = 10
         self.position.y += self.vel_y
-
 
 
 
