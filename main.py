@@ -68,7 +68,7 @@ class World():
 
 
 # Ball class
-class Ball():
+class Ball:
     def __init__(self, x, y):
         img = pygame.image.load("images/golfball.png")
         self.image = pygame.transform.scale(img, (20, 20))
@@ -78,29 +78,52 @@ class Ball():
         self.position = pygame.math.Vector2(self.rect.x, self.rect.y)
         self.vel_x = 0
         self.vel_y = 0
-        self.acc_y = 1
         self.bounce_factor = 0.7
-
+        self.gravity = 1
+        self.terminal_velocity = 10
+        self.friction = 0.1
 
     def update(self):
+        # Apply gravity
+        self.vel_y += self.gravity
+        if self.vel_y > self.terminal_velocity:
+            self.vel_y = self.terminal_velocity
 
+        # Update position
+        self.position.y += self.vel_y
+
+        # Update the rect position for collision detection
         self.rect.topleft = self.position
-        screen.blit(self.image, self.rect)
 
         # Collision detection
         for tile in world.tile_list:
             if self.rect.colliderect(tile[1]):
+                if self.vel_y > 0:  # Falling down
+                    self.position.y = tile[1].top - self.rect.height
+                elif self.vel_y < 0:  # Moving up
+                    self.position.y = tile[1].bottom
+
+                self.rect.topleft = self.position
+
+                # Apply bounce factor
                 self.vel_y *= -self.bounce_factor
-                self.position.y = tile[1].top - self.rect.height
 
+                # If the velocity is very low after bouncing, apply friction to stop the ball
+                if abs(self.vel_y) < 1:
+                    self.vel_y = 0
 
-        # Gravity
-        self.vel_y += self.acc_y
-        if self.vel_y > 10:
-            self.vel_y = 10
-        self.position.y += self.vel_y
+        # Apply friction to slow down the ball's horizontal movement
+        if abs(self.vel_x) > 0:
+            self.vel_x -= self.friction if self.vel_x > 0 else -self.friction
+            if abs(self.vel_x) < self.friction:
+                self.vel_x = 0
 
+        # Update the position based on horizontal velocity
+        self.position.x += self.vel_x
 
+        # Update the rect position
+        self.rect.topleft = self.position
+        screen.blit(self.image, self.rect)
 
 ball = Ball(100, 250)
 world = World(world_data)
