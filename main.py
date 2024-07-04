@@ -1,4 +1,5 @@
 import pygame
+import pyautogui
 
 pygame.init()
 pygame.font.init()
@@ -136,11 +137,14 @@ while running:
             running = False
 
     clock.tick(60)
-    screen.blit(bg_img, (0, 0))
+    screen.blit(bg_img, (0, 0)) 
     world.draw()
     ball.update()
     draw_grid()
 
+    mousepos = pyautogui.position()
+
+    mSurface = font.render(f"Mouse position: {mousepos}", True, (255, 255, 255))
     pSurface = font.render(f"Position: {ball.position}", True, (255, 255, 255))
     vSurface = font.render(f"Velocity: {ball.vel_x, ball.vel_y}", True, (255, 255, 255))
     screen.blit(pSurface, (10, 10))
