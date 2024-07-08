@@ -1,5 +1,4 @@
 import pygame
-import pyautogui
 
 pygame.init()
 pygame.font.init()
@@ -21,10 +20,10 @@ dirt_img = pygame.image.load("images/dirt.png")
 
 
 # Draw Grid Function
-def draw_grid():
-    for line in range(0, 20):
-        pygame.draw.line(screen, (0, 0, 0), (0, line * tile_size), (screen_w, line * tile_size))
-        pygame.draw.line(screen, (0, 0, 0), (line * tile_size, 0), (line * tile_size, screen_h))
+#def draw_grid():
+#    for line in range(0, 20):
+#        pygame.draw.line(screen, (0, 0, 0), (0, line * tile_size), (screen_w, line * tile_size))
+#        pygame.draw.line(screen, (0, 0, 0), (line * tile_size, 0), (line * tile_size, screen_h))
 
 
 # World data and class
@@ -140,13 +139,14 @@ while running:
     screen.blit(bg_img, (0, 0)) 
     world.draw()
     ball.update()
-    draw_grid()
+    #draw_grid()
 
-    mousepos = pyautogui.position()
+    mousepos = pygame.mouse.get_pos()
 
     mSurface = font.render(f"Mouse position: {mousepos}", True, (255, 255, 255))
     pSurface = font.render(f"Position: {ball.position}", True, (255, 255, 255))
     vSurface = font.render(f"Velocity: {ball.vel_x, ball.vel_y}", True, (255, 255, 255))
+    screen.blit(mSurface, (10, 70))
     screen.blit(pSurface, (10, 10))
     screen.blit(vSurface, (10, 40))
 
