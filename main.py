@@ -1,4 +1,5 @@
 import pygame
+import math
 
 pygame.init()
 pygame.font.init()
@@ -24,7 +25,6 @@ dirt_img = pygame.image.load("images/dirt.png")
 #    for line in range(0, 20):
 #        pygame.draw.line(screen, (0, 0, 0), (0, line * tile_size), (screen_w, line * tile_size))
 #        pygame.draw.line(screen, (0, 0, 0), (line * tile_size, 0), (line * tile_size, screen_h))
-
 
 # World data and class
 world_data = [
@@ -83,6 +83,7 @@ class Ball:
         self.terminal_velocity = 10
         self.friction = 0.1
 
+
     def update(self):
         # Apply gravity
         self.vel_y += self.gravity
@@ -125,6 +126,19 @@ class Ball:
         self.rect.topleft = self.position
         screen.blit(self.image, self.rect)
 
+def parabola_points(start, end, steps=50):
+    # Calculate the control point for a concave parabola
+    control_x = (start[0] + end[0]) / 2
+    control_y = min(start[1], end[1]) - 100  # Height control point
+
+    points = []
+    for step in range(steps + 1):
+        t = step / steps
+        x = (1 - t) ** 2 * start[0] + 2 * (1 - t) * t * control_x + t ** 2 * end[0]
+        y = (1 - t) ** 2 * start[1] + 2 * (1 - t) * t * control_y + t ** 2 * end[1]
+        points.append((int(x), int(y)))
+    return points
+
 ball = Ball(100, 250)
 world = World(world_data)
 
@@ -142,6 +156,12 @@ while running:
     #draw_grid()
 
     mousepos = pygame.mouse.get_pos()
+    ballpos = ball.rect.center
+
+    end_pos = (mousepos[0], 2 * ballpos[1] - mousepos[1])
+
+    points = parabola_points(ballpos, end_pos)
+    pygame.draw.lines(screen, (0, 0, 255), False, points, 2)
 
     mSurface = font.render(f"Mouse position: {mousepos}", True, (255, 255, 255))
     pSurface = font.render(f"Position: {ball.position}", True, (255, 255, 255))
