@@ -80,9 +80,12 @@ class Ball:
         self.vel_y = 0
         self.bounce_factor = 0.7
         self.gravity = 1
-        self.terminal_velocity = 10
+        self.terminal_velocity = 15
         self.friction = 0.1
-        self.thrown = False
+        if self.vel_y == 0 and self.vel_x == 0:
+            self.thrown = False
+        elif self.vel_y != 0 or self.vel_x != 0:
+            self.thrown = True
 
 
     def update(self):
@@ -95,6 +98,14 @@ class Ball:
         self.position.y += self.vel_y
         self.rect.topleft = self.position
 
+        # Screen collision
+        if self.rect.x == 0 or self.rect.x == 1000:
+            self.vel_x *= -1
+        
+        if self.rect.y == 0 or self.rect.y == 500:
+            self.vel_y *= -1
+        
+ 
         # Collision detection
         for tile in world.tile_list:
             if self.rect.colliderect(tile[1]):
@@ -124,22 +135,23 @@ class Ball:
         # Update the rect position
         self.rect.topleft = self.position
         screen.blit(self.image, self.rect)
+
+
     
     def putt(self):
-        mousepos = pygame.mouse.get_pos()
-        ballpos = ball.rect.center
-        distance_x = abs(ballpos[0] - mousepos[0])
-        distance_y = abs(ballpos[1] - mousepos[1])
+        if self.vel_x == 0 and self.vel_y == 0:
+            self.thrown = False
         
-        if mousepos[0] >= ballpos[0]:
-            self.vel_x += (0.08 * distance_x)
-            self.vel_y += (0.4 * distance_y)
-        else:
-            self.vel_x -= (0.08 * distance_x)
-            self.vel_y -= (0.4 * distance_y)
-        
-        self.position.x += self.vel_x
-        self.position.y += self.vel_y
+        if self.thrown == False:
+            mousepos = pygame.mouse.get_pos()
+            ballpos = ball.rect.center
+            distance_x = mousepos[0] - ballpos[0]
+            distance_y = mousepos[1] - ballpos[1]
+            
+            self.vel_x += (0.05 * distance_x)
+            self.vel_y += (0.15 * distance_y)
+            
+            self.thrown == True
 
 
 ball = Ball(100, 250)
@@ -164,14 +176,23 @@ while running:
     mousepos = pygame.mouse.get_pos()
     ballpos = ball.rect.center
 
-    pygame.draw.line(screen, (255, 0, 0), ballpos, mousepos, 5)
+    distance1 = abs(ballpos[0] - mousepos[0])
+    distance2 = abs(ballpos[1] - mousepos[1])
 
-    mSurface = font.render(f"Mouse position: {mousepos}", True, (255, 255, 255))
+    if ball.thrown == False:
+        pygame.draw.line(screen, (255, 0, 0), ballpos, mousepos, 3)
+
+    
+
     pSurface = font.render(f"Position: {ball.position}", True, (255, 255, 255))
     vSurface = font.render(f"Velocity: {ball.vel_x, ball.vel_y}", True, (255, 255, 255))
-    screen.blit(mSurface, (10, 70))
+    mSurface = font.render(f"Mouse position: {mousepos}", True, (255, 255, 255))
+    dSurface = font.render(f"Distance: {distance1, distance2}", True, (255, 255, 255))
+
     screen.blit(pSurface, (10, 10))
     screen.blit(vSurface, (10, 40))
+    screen.blit(mSurface, (10, 70))
+    screen.blit(dSurface, (10, 100))
 
     pygame.display.flip()
 
