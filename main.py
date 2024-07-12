@@ -82,6 +82,7 @@ class Ball:
         self.gravity = 1
         self.terminal_velocity = 10
         self.friction = 0.1
+        self.thrown = False
 
 
     def update(self):
@@ -92,8 +93,6 @@ class Ball:
 
         # Update position
         self.position.y += self.vel_y
-
-        # Update the rect position for collision detection
         self.rect.topleft = self.position
 
         # Collision detection
@@ -125,19 +124,23 @@ class Ball:
         # Update the rect position
         self.rect.topleft = self.position
         screen.blit(self.image, self.rect)
+    
+    def putt(self):
+        mousepos = pygame.mouse.get_pos()
+        ballpos = ball.rect.center
+        distance_x = abs(ballpos[0] - mousepos[0])
+        distance_y = abs(ballpos[1] - mousepos[1])
+        
+        if mousepos[0] >= ballpos[0]:
+            self.vel_x += (0.08 * distance_x)
+            self.vel_y += (0.4 * distance_y)
+        else:
+            self.vel_x -= (0.08 * distance_x)
+            self.vel_y -= (0.4 * distance_y)
+        
+        self.position.x += self.vel_x
+        self.position.y += self.vel_y
 
-def parabola_points(start, end, steps=50):
-    # Calculate the control point for a concave parabola
-    control_x = (start[0] + end[0]) / 2
-    control_y = min(start[1], end[1]) - 100  # Height control point
-
-    points = []
-    for step in range(steps + 1):
-        t = step / steps
-        x = (1 - t) ** 2 * start[0] + 2 * (1 - t) * t * control_x + t ** 2 * end[0]
-        y = (1 - t) ** 2 * start[1] + 2 * (1 - t) * t * control_y + t ** 2 * end[1]
-        points.append((int(x), int(y)))
-    return points
 
 ball = Ball(100, 250)
 world = World(world_data)
@@ -148,6 +151,9 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
+                ball.putt()
 
     clock.tick(60)
     screen.blit(bg_img, (0, 0)) 
@@ -158,10 +164,7 @@ while running:
     mousepos = pygame.mouse.get_pos()
     ballpos = ball.rect.center
 
-    end_pos = (mousepos[0], 2 * ballpos[1] - mousepos[1])
-
-    points = parabola_points(ballpos, end_pos)
-    pygame.draw.lines(screen, (0, 0, 255), False, points, 2)
+    pygame.draw.line(screen, (255, 0, 0), ballpos, mousepos, 5)
 
     mSurface = font.render(f"Mouse position: {mousepos}", True, (255, 255, 255))
     pSurface = font.render(f"Position: {ball.position}", True, (255, 255, 255))
