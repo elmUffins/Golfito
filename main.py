@@ -78,9 +78,9 @@ class Ball:
         self.position = pygame.math.Vector2(self.rect.x, self.rect.y)
         self.vel_x = 0
         self.vel_y = 0
-        self.bounce_factor = 0.7
+        self.bounce_factor = 0.5
         self.gravity = 1
-        self.terminal_velocity = 15
+        self.terminal_velocity = 20
         self.friction = 0.1
         if self.vel_y == 0 and self.vel_x == 0:
             self.thrown = False
@@ -89,10 +89,22 @@ class Ball:
 
 
     def update(self):
-        # Apply gravity
+        # Apply gravity + speed boundaries
         self.vel_y += self.gravity
         if self.vel_y > self.terminal_velocity:
             self.vel_y = self.terminal_velocity
+        if self.vel_y < -self.terminal_velocity:
+            self.vel_y = -self.terminal_velocity
+        if self.vel_x > self.terminal_velocity:
+            self.vel_x = self.terminal_velocity
+        if self.vel_x < -self.terminal_velocity:
+            self.vel_x = -self.terminal_velocity
+
+        # Screen Borders
+        if self.rect.x > 980 or self.rect.x < 0:
+            self.vel_x *= -1
+        if self.rect.y < 0:
+            self.vel_y *= -1
 
         # Update position
         self.position.y += self.vel_y
@@ -137,11 +149,7 @@ class Ball:
         screen.blit(self.image, self.rect)
 
 
-    
     def putt(self):
-        if self.vel_x == 0 and self.vel_y == 0:
-            self.thrown = False
-        
         if self.thrown == False:
             mousepos = pygame.mouse.get_pos()
             ballpos = ball.rect.center
@@ -151,7 +159,6 @@ class Ball:
             self.vel_x += (0.05 * distance_x)
             self.vel_y += (0.15 * distance_y)
             
-            self.thrown == True
 
 
 ball = Ball(100, 250)
@@ -181,8 +188,6 @@ while running:
 
     if ball.thrown == False:
         pygame.draw.line(screen, (255, 0, 0), ballpos, mousepos, 3)
-
-    
 
     pSurface = font.render(f"Position: {ball.position}", True, (255, 255, 255))
     vSurface = font.render(f"Velocity: {ball.vel_x, ball.vel_y}", True, (255, 255, 255))
