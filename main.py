@@ -82,10 +82,8 @@ class Ball:
         self.gravity = 1
         self.terminal_velocity = 20
         self.friction = 0.1
-        if self.vel_y == 0 and self.vel_x == 0:
-            self.thrown = False
-        elif self.vel_y != 0 or self.vel_x != 0:
-            self.thrown = True
+        self.thrown = False
+        self.colliding = False
 
 
     def update(self):
@@ -121,6 +119,7 @@ class Ball:
         # Collision detection
         for tile in world.tile_list:
             if self.rect.colliderect(tile[1]):
+                self.colliding = True
                 if self.vel_y > 0:  # Falling down
                     self.position.y = tile[1].top - self.rect.height
                 elif self.vel_y < 0:  # Moving up
@@ -147,6 +146,16 @@ class Ball:
         # Update the rect position
         self.rect.topleft = self.position
         screen.blit(self.image, self.rect)
+
+        if self.vel_x != 0 or self.vel_y != 0:
+            self.thrown = True
+        else:
+            self.thrown = False
+
+        if self.colliding:
+            self.friction = 0.2
+        elif not self.colliding:
+            self.friction = 0.1
 
 
     def putt(self):
@@ -193,11 +202,13 @@ while running:
     vSurface = font.render(f"Velocity: {ball.vel_x, ball.vel_y}", True, (255, 255, 255))
     mSurface = font.render(f"Mouse position: {mousepos}", True, (255, 255, 255))
     dSurface = font.render(f"Distance: {distance1, distance2}", True, (255, 255, 255))
+    fSurface = font.render(f"Friction: {ball.friction}", True, (255, 255, 255))
 
     screen.blit(pSurface, (10, 10))
     screen.blit(vSurface, (10, 40))
     screen.blit(mSurface, (10, 70))
     screen.blit(dSurface, (10, 100))
+    screen.blit(fSurface, (10, 130))
 
     pygame.display.flip()
 
