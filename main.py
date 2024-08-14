@@ -99,7 +99,11 @@ class Ball:
             self.vel_x = -self.terminal_velocity
 
         # Screen Borders
-        if self.rect.x > 980 or self.rect.x < 0:
+        if self.rect.x > 980:
+            self.position.x -= 1
+            self.vel_x *= -1
+        if self.rect.x < 0:
+            self.position.x += 1
             self.vel_x *= -1
         if self.rect.y < 0:
             self.vel_y *= -1
@@ -107,24 +111,16 @@ class Ball:
         # Update position
         self.position.y += self.vel_y
         self.rect.topleft = self.position
-
-        # Screen collision
-        if self.rect.x == 0 or self.rect.x == 1000:
-            self.vel_x *= -1
         
-        if self.rect.y == 0 or self.rect.y == 500:
-            self.vel_y *= -1
-        
- 
         # Collision detection
         for tile in world.tile_list:
             if self.rect.colliderect(tile[1]):
-                self.colliding = True
                 if self.vel_y > 0:  # Falling down
                     self.position.y = tile[1].top - self.rect.height
+                    self.colliding = True
                 elif self.vel_y < 0:  # Moving up
                     self.position.y = tile[1].bottom
-
+                    self.colliding = True
                 self.rect.topleft = self.position
 
                 # Apply bounce factor
@@ -133,6 +129,8 @@ class Ball:
                 # If the velocity is very low after bouncing, apply friction to stop the ball
                 if abs(self.vel_y) < 1:
                     self.vel_y = 0
+            else:
+                self.colliding = False
 
         # Apply friction to slow down the ball's horizontal movement
         if abs(self.vel_x) > 0:
@@ -154,7 +152,7 @@ class Ball:
 
         if self.colliding:
             self.friction = 0.2
-        elif not self.colliding:
+        if self.colliding == False:
             self.friction = 0.1
 
 
