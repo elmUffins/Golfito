@@ -18,6 +18,7 @@ tile_size = 50
 bg_img = pygame.image.load("images/back.png")
 grass_img = pygame.image.load("images/grass.png")
 dirt_img = pygame.image.load("images/dirt.png")
+hole_img = pygame.image.load("images/FLAGBR.png")
 
 
 # Draw Grid Function
@@ -207,6 +208,7 @@ while running:
     screen.blit(mSurface, (10, 70))
     screen.blit(dSurface, (10, 100))
     screen.blit(fSurface, (10, 130))
+    screen.blit(hole_img, (300, 300))
 
     pygame.display.flip()
 
